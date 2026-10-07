@@ -21,3 +21,4 @@ def k(n, E, p, f, P):
     k = n*E*p*f*P
     return (k)
 
+#calculation of thermal fission factor n
