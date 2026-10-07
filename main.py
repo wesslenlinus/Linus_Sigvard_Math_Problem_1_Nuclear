@@ -20,4 +20,4 @@ mod_fuel_volume_ratio = 2.25        # Volymförhållande moderator/bränsle (Vm/
 def k(n, E, p, f, P):
     k = n*E*p*f*P
     return (k)
-
+"Testar ändring"
