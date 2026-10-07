@@ -21,3 +21,5 @@ def k(n, E, p, f, P):
     k = n*E*p*f*P
     return (k)
 
+
+"Hejhej"
