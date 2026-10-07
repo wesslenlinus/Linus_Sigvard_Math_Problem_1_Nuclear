@@ -14,3 +14,9 @@ moderator_temp_c = 286.0            # Moderatortemperatur i Celsius
 void_fraction = 0.40                # Genomsnittlig void (ånghalt)
 fuel_pin_diameter_mm = 9.8          # Bränsledimension: stavdiameter i mm
 mod_fuel_volume_ratio = 2.25        # Volymförhållande moderator/bränsle (Vm/Vf)
+
+
+
+def k(n, E, p, f, P):
+    k = n*E*p*f*P
+    return (k)
