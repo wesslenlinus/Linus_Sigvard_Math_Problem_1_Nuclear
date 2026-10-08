@@ -21,4 +21,12 @@ def k(n, E, p, f, P):
     k = n*E*p*f*P
     return (k)
 
+# cross sections from nndc.bnl.gov
+sigma_f_235 = 596 * 10 ** -24  # barn
+sigma_a_235 = 97.6 * 10 ** -24 + sigma_f_235  #(n,gamma) + (n, total fission)  # barn
+sigma_f_238 = 1.76 * 10 ** -5 * 10 ** -24
+sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
+
 #calculation of thermal fission factor n
+def n(newbar, N235, N238, sigmaF235, sigmaC235, sigmaC238):
+    return(n)
