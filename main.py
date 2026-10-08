@@ -20,4 +20,14 @@ mod_fuel_volume_ratio = 2.25        # Volymförhållande moderator/bränsle (Vm/
 def k(n, E, p, f, P):
     k = n*E*p*f*P
     return (k)
-"Testar ändring"
+
+# Beräkna mikroskopiskt absorptionstvärsnitt för moderator (H2O)
+sigma_a_H = 0.332e-24    #Hämtat ur Reaktorfysik KSU
+sigma_a_H20 = 2 * sigma_a_H     #Antar att syre har mikroskopiskt absorptionstvärsnitt = 0 enligt Reaktorfysik KSU
+
+sigma_a_br =    # Mikroskopiskt absorptionstvärsnitt för bränsle
+
+Sigma_a_br =    # Makroskopiskt absorptionstvärsnitt för bränsle
+
+def f(S_a_br, V_br, S_a_mod, V_a_mod, S_a_styrstav, V_a_styrstav, S_a_Xe, V_a_Xe):
+    
