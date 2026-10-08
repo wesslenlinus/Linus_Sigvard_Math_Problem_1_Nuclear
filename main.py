@@ -16,7 +16,7 @@ reactor_type = "BWR"
 fuel_material = "UO2"  
 Ma_UO2 = 270  # g/mol UO2
 rho_UO2 = 10.97  # g/cm^3             
-enrichment_percent = 3.8
+enrichment_percent = 3.8/100
 
 #moderator specifications
 moderator = "H2O"                  
@@ -38,14 +38,16 @@ sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
 
 
 #calculation of thermal fission factor n
-def n(newbar, e, sigmaF235, sigmaC235, sigmaC238):
+def n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
 
-# Number of U235 nuclides per cm^3 fuel
-N235 = e * (rho_UO2 * NA) / Ma_UO2
-# Number of U238 nuclides per cm^3 fuel
-N238 = (1 - e) * (rho_UO2 * NA) / Ma_UO2
+    # Number of U235 nuclides per cm^3 fuel
+    N235 = e * (rho_UO2 * NA) / Ma_UO2
+    # Number of U238 nuclides per cm^3 fuel
+    N238 = (1 - e) * (rho_UO2 * NA) / Ma_UO2
 
-return(n)
+    n = nu_bar * (e * sigmaF235) / (e * (sigmaF235 + sigmaC235) + (1 - e) * sigmaC238)
+
+    return(n)
 
 thermal_fission_factor = n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
 
