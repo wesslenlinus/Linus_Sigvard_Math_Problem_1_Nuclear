@@ -1,6 +1,5 @@
 """The task is to make a preliminary design of a reactor so that it is critical (k=1) when it has reached equilibrium at full power at start-up and can be operated until the next fuel change. In the design work, you must choose the following parameters: reactor power, reactor size, operating time between fuel changes, reactor type, fuel, enrichment, moderator, moderator temperature, void, fuel dimension and moderator/fuel volume ratio. Explain how you use control rods, burnable absorbers and/or boron. The moderator temperature coefficient / void coefficient should be negative both at start-up and at the end of the operating period. Some of your own assumptions will need to be made, especially regarding neutron absorption in reactor poisons and construction materials."""
-
-from math import *
+import math as math
 
 NA = 6.022 * 10 ** 23  # Avogadros tal, st/mol
 
@@ -38,7 +37,7 @@ sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
 
 
 #calculation of thermal fission factor n
-def n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
+def calc_n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
 
     # Number of U235 nuclides per cm^3 fuel
     N235 = e * (rho_UO2 * NA) / Ma_UO2
@@ -49,6 +48,12 @@ def n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
 
     return(n)
 
-thermal_fission_factor = n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
+thermal_fission_factor = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
 
 print(thermal_fission_factor)
+
+
+def calc_p(e_frac, N_uran, sigma_I, xi_sigma_s, vm_vf_ratio):
+    exponent = -(1.0 - e_frac) * (N_uran * sigma_I / xi_sigma_s) * (1.0 / vm_vf_ratio)
+    p = (math.e ** (exponent))
+    return p
