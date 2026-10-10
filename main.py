@@ -21,9 +21,15 @@ enrichment_percent = 3.8/100
 moderator = "H2O"                  
 moderator_temp_c = (286.0 + 273)    
 void_fraction = 0.40                
+rho_steam = 36.53 / 1e3  # g/cm^3 at T = 286 C and P = 7 MPa from
+rho_water = 739.7 / 1e3  # g/cm^3
+rho_mod = void_fraction * rho_steam + (1 - void_fraction) * rho_water
+Ma_mod = 18  # g/cm^3 för H2O
 fuel_pin_diameter_mm = 9.8          
 mod_fuel_volume_ratio = 3        #(Vm/Vf) assumed given lectures in course
 N_U = (rho_UO2 * NA) / Ma_UO2
+N_U235 = enrichment_percent * N_U
+N_U238 = (1 - enrichment_percent) * N_U 
 sigma_I_abs = 20.0 * 10**-24    # barn converted to cm^2
 xi_Sigma_s = 0.8                # cm^-1 (assumed value for H2O)
 
@@ -52,8 +58,6 @@ def calc_n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
     return(n)
 
 
-
-
 def calc_p(e_frac, N_uran, sigma_I, xi_sigma_s, vm_vf_ratio):
     exponent = -(1.0 - e_frac) * (N_uran * sigma_I / xi_sigma_s) * (1.0 / vm_vf_ratio)
     p = (math.e ** (exponent))
@@ -66,13 +70,15 @@ print(thermal_fission_factor)
 resonance_passage_factor = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
 print (resonance_passage_factor)
 
-# Beräkna mikroskopiskt absorptionstvärsnitt för moderator (H2O)
-sigma_a_H = 0.332e-24    #Hämtat ur Reaktorfysik KSU
-sigma_a_H20 = 2 * sigma_a_H     #Antar att syre har mikroskopiskt absorptionstvärsnitt = 0 enligt Reaktorfysik KSU
+# Calculating macroscopic absorption cross section for moderator (H2O)
+sigma_a_H = 0.332e-24    #Reaktorfysik KSU
+sigma_a_H2O = 2 * sigma_a_H     #Presuming absorption for Oxygen = 0 (Reaktorfysik KSU)
+Sigma_a_H2O = (rho_mod*NA)/Ma_mod * sigma_a_H2O
 
-sigma_a_br =    # Mikroskopiskt absorptionstvärsnitt för bränsle
+# Calculating macroscopic absorption cross section for fuel (UO2)
+Sigma_a_br = sigma_a_235*N_U235 + sigma_a_238*N_U238  
 
-Sigma_a_br =    # Makroskopiskt absorptionstvärsnitt för bränsle
+
 
 def f(S_a_br, V_br, S_a_mod, V_a_mod, S_a_styrstav, V_a_styrstav, S_a_Xe, V_a_Xe):
     
