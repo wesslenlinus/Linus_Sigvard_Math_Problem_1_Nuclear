@@ -51,15 +51,17 @@ def calc_n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
 
     return(n)
 
-thermal_fission_factor = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
 
-print(thermal_fission_factor)
 
 
 def calc_p(e_frac, N_uran, sigma_I, xi_sigma_s, vm_vf_ratio):
     exponent = -(1.0 - e_frac) * (N_uran * sigma_I / xi_sigma_s) * (1.0 / vm_vf_ratio)
     p = (math.e ** (exponent))
     return p
+
+thermal_fission_factor = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
+print(thermal_fission_factor)
+
 
 resonance_passage_factor = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
 print (resonance_passage_factor)
