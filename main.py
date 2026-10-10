@@ -7,15 +7,25 @@ NA = 6.022 * 10 ** 23  # Avogadros tal, st/mol
 reactor_power_mwth = 2540.0         
 core_assemblies = 648               
 core_height_m = 3.7                 
-core_diameter_m = 4.2               
+core_diameter_m = 4.2           
+core_weight = 650e3   #g    
 op_time_between_refueling_mo = 12   
 reactor_type = "BWR"  
+
 
 #fuel specifications
 fuel_material = "UO2"  
 Ma_UO2 = 270  # g/mol UO2
 rho_UO2 = 10.97  # g/cm^3             
 enrichment_percent = 3.8/100
+N_U = (rho_UO2 * NA) / Ma_UO2
+N_U235 = enrichment_percent * N_U
+N_U238 = (1 - enrichment_percent) * N_U 
+
+energy_per_fission = 3.2e11     # Joules / Fission
+energy_per_cycle = reactor_power_mwth * 60 * 60 * 24 * 365  # Assumption: 1 cycle = 1 year
+fissions_per_cycle = energy_per_cycle / energy_per_fission 
+N_fissile_start = core_weight * N_U235
 
 #moderator specifications
 moderator = "H2O"                  
@@ -27,9 +37,6 @@ rho_mod = void_fraction * rho_steam + (1 - void_fraction) * rho_water
 Ma_mod = 18  # g/cm^3 för H2O
 fuel_pin_diameter_mm = 9.8          
 mod_fuel_volume_ratio = 3        #(Vm/Vf) assumed given lectures in course
-N_U = (rho_UO2 * NA) / Ma_UO2
-N_U235 = enrichment_percent * N_U
-N_U238 = (1 - enrichment_percent) * N_U 
 sigma_I_abs = 20.0 * 10**-24    # barn converted to cm^2
 xi_Sigma_s = 0.8                # cm^-1 (assumed value for H2O)
 
@@ -76,12 +83,17 @@ sigma_a_H2O = 2 * sigma_a_H     #Presuming absorption for Oxygen = 0 (Reaktorfys
 Sigma_a_H2O = (rho_mod*NA)/Ma_mod * sigma_a_H2O
 
 # Calculating macroscopic absorption cross section for fuel (UO2)
-Sigma_a_br = sigma_a_235*N_U235 + sigma_a_238*N_U238  
+Sigma_a_fuel = sigma_a_235*N_U235 + sigma_a_238*N_U238  
 
 # Calculating reactor poisoning from 135Xe. We assume all poisoning is due to Xenon 135.
 sigma_a_Xe = 2.6e-18 
 yield_Xe = 1.016e-3     #Independent fission yield at e = 0.0253 eV
 yield_I = 6.437e-2      #Cumulative fission yield at e = 0.0253 eV. Because Te-135 has T1/2 = 19.6s we assume all Te-135 is I-135 at equilibrium. 
+T_half_Xe =  33120
+Lambda = log(2) / T_half_Xe
+
+Sigma_f_fuel = sigma_f_235 * enrichment_percent * rho_UO2 * NA / Ma_UO2     #Assumption: All fission occurs from U-235.
+neutron_flux = reactor_power_mwth / (sigma_f_235 * energy_per_fission * N_U235
 
 def f(S_a_br, V_br, S_a_mod, V_a_mod, S_a_styrstav, V_a_styrstav, S_a_Xe, V_a_Xe):
     
