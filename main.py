@@ -21,8 +21,8 @@ enrichment_percent = 3.8/100
 moderator = "H2O"                  
 moderator_temp_c = (286.0 + 273)    
 void_fraction = 0.40                
-rho_steam = 36.53 / 1e3  # g/cm^3 at T = 286 C and P = 7 MPa from
-rho_water = 739.7 / 1e3  # g/cm^3
+rho_steam = 36.53e-3  # g/cm^3 at T = 286 C and P = 7 MPa from
+rho_water = 739.7e-3  # g/cm^3
 rho_mod = void_fraction * rho_steam + (1 - void_fraction) * rho_water
 Ma_mod = 18  # g/cm^3 för H2O
 fuel_pin_diameter_mm = 9.8          
@@ -78,7 +78,10 @@ Sigma_a_H2O = (rho_mod*NA)/Ma_mod * sigma_a_H2O
 # Calculating macroscopic absorption cross section for fuel (UO2)
 Sigma_a_br = sigma_a_235*N_U235 + sigma_a_238*N_U238  
 
-
+# Calculating reactor poisoning from 135Xe. We assume all poisoning is due to Xenon 135.
+sigma_a_Xe = 2.6e-18 
+yield_Xe = 1.016e-3     #Independent fission yield at e = 0.0253 eV
+yield_I = 6.437e-2      #Cumulative fission yield at e = 0.0253 eV. Because Te-135 has T1/2 = 19.6s we assume all Te-135 is I-135 at equilibrium. 
 
 def f(S_a_br, V_br, S_a_mod, V_a_mod, S_a_styrstav, V_a_styrstav, S_a_Xe, V_a_Xe):
     
