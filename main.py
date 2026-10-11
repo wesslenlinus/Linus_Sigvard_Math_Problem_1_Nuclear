@@ -83,10 +83,10 @@ print (resonance_passage_factor)
 # Calculating macroscopic absorption cross section for moderator (H2O)
 sigma_a_H = 0.332e-24    #Reaktorfysik KSU
 sigma_a_H2O = 2 * sigma_a_H     #Presuming absorption for Oxygen = 0 (Reaktorfysik KSU)
-Sigma_a_H2O = (rho_mod*NA)/Ma_mod * sigma_a_H2O
+Sigma_a_H2O = (rho_mod * NA) / Ma_mod * sigma_a_H2O
 
 # Calculating macroscopic absorption cross section for fuel (UO2)
-Sigma_a_fuel = sigma_a_235*N_U235 + sigma_a_238*N_U238  
+Sigma_a_fuel = sigma_a_235 * N_U235 + sigma_a_238 * N_U238  
 
 # Calculating reactor poisoning from 135Xe. We assume all poisoning is due to Xenon 135.
 sigma_a_Xe = 2.6e-18 
@@ -112,28 +112,39 @@ thickness_rod = 0.5  #cm
 N_B4C = rho_B4C*NA/Ma_B4C
 sigma_a_bor = 3840e-24
 Sigma_a_bor = N_B4C * sigma_a_bor
-length_rod = core_height_m * rod_insertion 
-
-#Relative and total volume of the control rods
-V_fuel = core_mass / rho_UO2    # Under the assumption that the full core is made up of fuel
-V_tot_rods = number_of_rods * (2 * length_rod * blade_width_rod * thickness_rod)
-scale_factor = 0.15     # Accounting for the self-shielding and decrease of neutron flux around the rod. 
-# Calibrated by making sure k_eff = 1 at start. 
-V_rel_rods = V_tot_rods / V_fuel * scale_factor
 
 
-#Volume of the moderator. The difference between full volume of the core and the volumes of fuel and control rods is calculated. 
-V_core = math.pi * core_height_m * (core_diameter_m/2)**2    # Actual volume of the core
-V_tot_mod = V_core - V_fuel - V_tot_rods    
-V_rel_mod = V_tot_mod / V_fuel
+def calc_mod_and_rod_volumes(rod_insertion, scale_factor):
+    length_rod = core_height_m * 100 * rod_insertion 
 
-#Calculating f
+    #Relative and total volume of the control rods
+    V_fuel = core_mass / rho_UO2    # Under the assumption that the full core is made up of fuel
+    V_tot_rods = number_of_rods * (2 * length_rod * blade_width_rod  * thickness_rod)
+    scale_factor = 0.15     # Accounting for the self-shielding and decrease of neutron flux around the rod.
 
-f_fuel = Sigma_a_fuel
-f_Xe = Sigma_a_Xe * V_rel_Xe
-f_mod = Sigma_a_H2O * V_rel_mod
-f_rods = Sigma_a_bor * V_rel_rods
+    # Calibrated by making sure k_eff = 1 at start. 
+    V_rel_rods = V_tot_rods / V_fuel * scale_factor
 
-f = f_fuel / (f_mod * f_Xe * f_rods)
+    #Volume of the moderator. The difference between full volume of the core and the volumes of fuel and control rods is calculated. 
+    V_core = math.pi * core_height_m * 100 * (core_diameter_m * 100 / 2)**2    # Actual volume of the core
+    V_tot_mod = V_core - V_fuel - V_tot_rods    
+    V_rel_mod = V_tot_mod / V_fuel
 
-print(f)
+    return V_rel_mod, V_rel_rods
+
+
+# Beräkning av termiska utnyttjandefaktorn (f)
+def calc_f(rod_insertion, scale_factor):
+    V_rel_rods, V_rel_mod = calc_mod_and_rod_volumes(rod_insertion, scale_factor)
+    
+    f_fuel = Sigma_a_fuel 
+    f_Xe = Sigma_a_Xe * V_rel_Xe
+    f_mod = Sigma_a_H2O * V_rel_mod
+    f_rods = Sigma_a_bor * V_rel_rods
+    
+    f = f_fuel / (f_fuel + f_mod + f_Xe + f_rods)
+    return f
+
+rod_insertion_start = 0.7
+f_val = calc_f(rod_insertion_start, scale_factor = 0.15)
+print(f"f vid {rod_insertion_start*100}% inskjutning: {f_val:.4f}")
