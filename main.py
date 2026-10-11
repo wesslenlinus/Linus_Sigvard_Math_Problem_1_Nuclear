@@ -25,13 +25,6 @@ N_U = (rho_UO2 * NA) / Ma_UO2
 N_U235 = enrichment_percent * N_U
 N_U238 = (1 - enrichment_percent) * N_U 
 
-#Fissile and fertile cores at the start of the cycle
-energy_per_fission = 3.2e11     # Joules / Fission
-energy_per_cycle = reactor_power_mwth * 60 * 60 * 24 * 365  # Assumption: 1 cycle = 1 year
-fissions_per_cycle = energy_per_cycle / energy_per_fission 
-N_U235_start = enrichment_percent * core_mass * NA / Ma_UO2  #Number of fissile cores at the start of the cycle. 
-                                                             #Assumption: Only fissile cores are U-235
-N_U238_start = (1 - enrichment_percent) * core_mass * NA / Ma_UO2
 
 #moderator specifications
 moderator = "H2O"                  
@@ -52,6 +45,19 @@ sigma_a_235 = 97.6 * 10 ** -24 + sigma_f_235  #(n,gamma) + (n, total fission)  #
 sigma_f_238 = 1.76 * 10 ** -5 * 10 ** -24
 sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
 
+#Fissile and fertile cores at the start of the cycle
+energy_per_fission = 3.2e11     # Joules / Fission
+energy_per_cycle = reactor_power_mwth * 60 * 60 * 24 * 365  # Assumption: 1 cycle = 1 year
+N_U235_start = enrichment_percent * core_mass * NA / Ma_UO2  #Number of fissile cores at the start of the cycle. 
+                                                             #Assumption: Only fissile cores are U-235
+N_U238_start = (1 - enrichment_percent) * core_mass * NA / Ma_UO2                                                             
+
+#Fissile and fertile cores at the end of the cycle
+fissions_per_cycle = energy_per_cycle / energy_per_fission 
+nuclei_fissioned = fissions_per_cycle * 0.95 * (sigma_a_235 / sigma_f_235)
+N_U235_end = N_U235_start - fissions_per_cycle
+fuel_left_end = core_mass * NA / Ma_UO2
+enrichment_percent_end = N_U235_end / fuel_left_end
 
 #calculation of thermal fission factor n
 def calc_n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
