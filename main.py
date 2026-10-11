@@ -1,14 +1,18 @@
 """The task is to make a preliminary design of a reactor so that it is critical (k=1) when it has reached equilibrium at full power at start-up and can be operated until the next fuel change. In the design work, you must choose the following parameters: reactor power, reactor size, operating time between fuel changes, reactor type, fuel, enrichment, moderator, moderator temperature, void, fuel dimension and moderator/fuel volume ratio. Explain how you use control rods, burnable absorbers and/or boron. The moderator temperature coefficient / void coefficient should be negative both at start-up and at the end of the operating period. Some of your own assumptions will need to be made, especially regarding neutron absorption in reactor poisons and construction materials."""
 import math as math
+import matplotlib.pyplot as plt
+import numpy as np
 
 NA = 6.022 * 10 ** 23  # Avogadros tal, st/mol
 
 #Technical specifications for Ringhals 1
 reactor_power_mwth = 2540.0         
-core_assemblies = 648               
+core_assemblies = 648
+assemblies_mass = 193e3                
 core_height_m = 3.7                 
-core_diameter_m = 4.2           
-core_mass = 650e3   #g    
+#core_diameter_m = 4.2
+core_diameter_m = 5.95  # Rätt?           
+core_mass = core_assemblies * assemblies_mass #kg
 op_time_between_refueling_mo = 12   
 reactor_type = "BWR"  
 
@@ -43,11 +47,6 @@ mod_fuel_volume_ratio = 3        #(Vm/Vf) assumed given lectures in course
 sigma_I_abs = 20.0 * 10**-24    # barn converted to cm^2
 xi_Sigma_s = 0.8                # cm^-1 (assumed value for H2O)
 
-
-def k(n, E, p, f, P):
-    k = n*E*p*f*P
-    return (k)
-
 # cross sections from nndc.bnl.gov
 sigma_f_235 = 596 * 10 ** -24  # barn
 sigma_a_235 = 97.6 * 10 ** -24 + sigma_f_235  #(n,gamma) + (n, total fission)  # barn
@@ -74,11 +73,11 @@ def calc_p(e_frac, N_uran, sigma_I, xi_sigma_s, vm_vf_ratio):
     return p
 
 thermal_fission_factor = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
-print(thermal_fission_factor)
+print(f'n = {thermal_fission_factor}')
 
 
 resonance_passage_factor = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
-print (resonance_passage_factor)
+print (f'p = {resonance_passage_factor}')
 
 # Calculating macroscopic absorption cross section for moderator (H2O)
 sigma_a_H = 0.332e-24    #Reaktorfysik KSU
@@ -107,7 +106,7 @@ V_rel_Xe = N_Xe / N_U
 rho_B4C = 2.52  #g/cm^3
 Ma_B4C = 55.26  #g/mol
 number_of_rods = 157    #From Ringhals specifications
-blade_width_rod = 150   #cm Assumed values
+blade_width_rod = 15   #cm Assumed values
 thickness_rod = 0.5  #cm
 N_B4C = rho_B4C*NA/Ma_B4C
 sigma_a_bor = 3840e-24
@@ -120,7 +119,7 @@ def calc_mod_and_rod_volumes(rod_insertion, scale_factor):
     #Relative and total volume of the control rods
     V_fuel = core_mass / rho_UO2    # Under the assumption that the full core is made up of fuel
     V_tot_rods = number_of_rods * (2 * length_rod * blade_width_rod  * thickness_rod)
-    scale_factor = 0.15     # Accounting for the self-shielding and decrease of neutron flux around the rod.
+    # scale_factor: Accounting for the self-shielding and decrease of neutron flux around the rod.
 
     # Calibrated by making sure k_eff = 1 at start. 
     V_rel_rods = V_tot_rods / V_fuel * scale_factor
@@ -129,8 +128,10 @@ def calc_mod_and_rod_volumes(rod_insertion, scale_factor):
     V_core = math.pi * core_height_m * 100 * (core_diameter_m * 100 / 2)**2    # Actual volume of the core
     V_tot_mod = V_core - V_fuel - V_tot_rods    
     V_rel_mod = V_tot_mod / V_fuel
-
-    return V_rel_mod, V_rel_rods
+    #print(f'Volym mod: {V_tot_mod}')
+    #print(f'Volym fuel: {V_fuel}')
+    #print(f'Volym core: {V_core}')
+    return V_rel_rods, V_rel_mod
 
 
 # Beräkning av termiska utnyttjandefaktorn (f)
@@ -143,8 +144,41 @@ def calc_f(rod_insertion, scale_factor):
     f_rods = Sigma_a_bor * V_rel_rods
     
     f = f_fuel / (f_fuel + f_mod + f_Xe + f_rods)
+    #print("f_fuel:", f_fuel)
+    #print("f_mod:", f_mod)
+    #print("f_Xe:", f_Xe)
+    #print("f_rods:", f_rods)
+    
     return f
 
-rod_insertion_start = 0.7
+rod_insertion_start = 0.0
 f_val = calc_f(rod_insertion_start, scale_factor = 0.15)
 print(f"f vid {rod_insertion_start*100}% inskjutning: {f_val:.4f}")
+
+# Beräkna de fem faktorerna
+
+# ε (epsilon) - Snabbfissionsfaktorn (antagen rimlig nivå för UO2 i BWR)
+epsilon = 1.02
+print(f'ε = {epsilon}')
+
+# P - Total icke-läckagefaktor (uppskattning för stor härd, annars 1.0 om läckage försummas)
+P_leakage = 0.97
+print (f'P = {P_leakage}')
+
+# Funktion för att beräkna k_eff
+def calc_k_eff(n, E, p, f, P):
+    return n * E * p * f * P
+
+# Kör beräkning för 0% inskjutning (helt utdragna stavar) 
+print("\n--- Körning vid 0% inskjutning ---")
+f_val_0 = calc_f(rod_insertion=0.0, scale_factor=0.1254)
+k_eff_0 = calc_k_eff(thermal_fission_factor, epsilon, resonance_passage_factor, f_val_0, P_leakage)
+print(f"f vid 0%: {f_val_0:.4f}")
+print(f"k_eff vid 0% inskjutning: {k_eff_0:.4f}")
+
+# --- 4. Kör beräkning för 70% inskjutning (driftstart) ---
+print("\n--- Körning vid 70% inskjutning ---")
+f_val_70 = calc_f(rod_insertion=0.70, scale_factor=0.1254)
+k_eff_70 = calc_k_eff(thermal_fission_factor, epsilon, resonance_passage_factor, f_val_70, P_leakage)
+print(f"f vid 70%: {f_val_70:.4f}")
+print(f"k_eff vid 70% inskjutning: {k_eff_70:.4f}")
