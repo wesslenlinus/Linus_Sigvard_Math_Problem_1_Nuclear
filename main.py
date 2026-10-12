@@ -181,7 +181,7 @@ k_eff_0 = calc_k_eff(thermal_fission_factor, epsilon, resonance_passage_factor, 
 print(f"f vid 0%: {f_val_0:.4f}")
 print(f"k_eff vid 0% inskjutning: {k_eff_0:.4f}")
 
-# --- 4. Kör beräkning för 70% inskjutning (driftstart) ---
+# Kör beräkning för 70% inskjutning (driftstart)
 print("\n--- Körning vid 70% inskjutning ---")
 f_val_70 = calc_f(rod_insertion=0.70, scale_factor=0.1254)
 k_eff_70 = calc_k_eff(thermal_fission_factor, epsilon, resonance_passage_factor, f_val_70, P_leakage)
