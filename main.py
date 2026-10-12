@@ -24,6 +24,7 @@ enrichment_percent = 3.8/100
 N_U = (rho_UO2 * NA) / Ma_UO2
 N_U235 = enrichment_percent * N_U
 N_U238 = (1 - enrichment_percent) * N_U 
+print(N_U235)
 
 
 #moderator specifications
@@ -33,8 +34,7 @@ void_fraction = 0.40
 rho_steam = 36.53e-3  # g/cm^3 at T = 286 C and P = 7 MPa from
 rho_water = 739.7e-3  # g/cm^3
 rho_mod = void_fraction * rho_steam + (1 - void_fraction) * rho_water
-Ma_mod = 18  # g/cm^3 för H2O
-fuel_pin_diameter_mm = 9.8          
+Ma_mod = 18  # g/cm^3 för H2O       
 mod_fuel_volume_ratio = 3        #(Vm/Vf) assumed given lectures in course
 sigma_I_abs = 20.0 * 10**-24    # barn converted to cm^2
 xi_Sigma_s = 0.8                # cm^-1 (assumed value for H2O)
@@ -49,6 +49,7 @@ sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
 energy_per_fission = 3.2e11     # Joules / Fission
 energy_per_cycle = reactor_power_mwth * 60 * 60 * 24 * 365  # Assumption: 1 cycle = 1 year
 N_U235_start = enrichment_percent * core_mass * NA / Ma_UO2  #Number of fissile cores at the start of the cycle. 
+print(N_U235_start)
                                                              #Assumption: Only fissile cores are U-235
 N_U238_start = (1 - enrichment_percent) * core_mass * NA / Ma_UO2                                                             
 
@@ -58,6 +59,7 @@ nuclei_fissioned = fissions_per_cycle * 0.95 * (sigma_a_235 / sigma_f_235)
 N_U235_end = N_U235_start - fissions_per_cycle
 fuel_left_end = core_mass * NA / Ma_UO2
 enrichment_percent_end = N_U235_end / fuel_left_end
+print(enrichment_percent_end)
 
 #calculation of thermal fission factor n
 def calc_n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
@@ -77,12 +79,15 @@ def calc_p(e_frac, N_uran, sigma_I, xi_sigma_s, vm_vf_ratio):
     p = (math.e ** (exponent))
     return p
 
-thermal_fission_factor = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
-print(f'n = {thermal_fission_factor}')
+thermal_fission_factor_start = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
+thermal_fission_factor_end = calc_n(2.43, enrichment_percent_end, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
+print(f'n = {thermal_fission_factor_start} vid start')
+print(f'n = {thermal_fission_factor_end} vid driftslut')
 
+resonance_passage_factor_start = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
+print (f'p = {resonance_passage_factor_start} vid start')
+resonance_passage_factor_end = calc_p(enrichment_percent_end, N_U, sigma_I_abs, xi_Sigma_s,3)
 
-resonance_passage_factor = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
-print (f'p = {resonance_passage_factor}')
 
 # Calculating macroscopic absorption cross section for moderator (H2O)
 sigma_a_H = 0.332e-24    #Reaktorfysik KSU
@@ -163,7 +168,7 @@ print(f"f vid {rod_insertion_start*100}% inskjutning: {f_val:.4f}")
 # Beräkna de fem faktorerna
 
 # ε (epsilon) - Snabbfissionsfaktorn (antagen rimlig nivå för UO2 i BWR)
-epsilon = 1.02
+epsilon = 1.06
 print(f'ε = {epsilon}')
 
 # P - Total icke-läckagefaktor (uppskattning för stor härd, annars 1.0 om läckage försummas)
@@ -177,13 +182,14 @@ def calc_k_eff(n, E, p, f, P):
 # Kör beräkning för 0% inskjutning (helt utdragna stavar) 
 print("\n--- Körning vid 0% inskjutning ---")
 f_val_0 = calc_f(rod_insertion=0.0, scale_factor=0.1254)
-k_eff_0 = calc_k_eff(thermal_fission_factor, epsilon, resonance_passage_factor, f_val_0, P_leakage)
+k_eff_0 = calc_k_eff(thermal_fission_factor_start, epsilon, resonance_passage_factor_start, f_val_0, P_leakage)
 print(f"f vid 0%: {f_val_0:.4f}")
 print(f"k_eff vid 0% inskjutning: {k_eff_0:.4f}")
 
 # Kör beräkning för 70% inskjutning (driftstart)
 print("\n--- Körning vid 70% inskjutning ---")
 f_val_70 = calc_f(rod_insertion=0.70, scale_factor=0.1254)
-k_eff_70 = calc_k_eff(thermal_fission_factor, epsilon, resonance_passage_factor, f_val_70, P_leakage)
+k_eff_70 = calc_k_eff(thermal_fission_factor_start, epsilon, resonance_passage_factor_start, f_val_70, P_leakage)
 print(f"f vid 70%: {f_val_70:.4f}")
 print(f"k_eff vid 70% inskjutning: {k_eff_70:.4f}")
+
