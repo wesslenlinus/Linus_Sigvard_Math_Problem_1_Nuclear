@@ -6,7 +6,7 @@ import numpy as np
 NA = 6.022 * 10 ** 23  # Avogadros tal, st/mol
 
 #Technical specifications for Ringhals 1
-reactor_power_mwth = 2540.0         
+reactor_power_wh = 2540e6         
 core_assemblies = 648
 assemblies_mass = 193e3                
 core_height_m = 3.7                 
@@ -46,8 +46,8 @@ sigma_f_238 = 1.76 * 10 ** -5 * 10 ** -24
 sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
 
 #Fissile and fertile cores at the start of the cycle
-energy_per_fission = 3.2e11     # Joules / Fission
-energy_per_cycle = reactor_power_mwth * 60 * 60 * 24 * 365  # Assumption: 1 cycle = 1 year
+energy_per_fission = 3.2e-11     # Joules / Fission
+energy_per_cycle = reactor_power_wh * 60 * 60 * 24 * 365  # Assumption: 1 cycle = 1 year
 N_U235_start = enrichment_percent * core_mass * NA / Ma_UO2  #Number of fissile cores at the start of the cycle. 
 print(N_U235_start)
                                                              #Assumption: Only fissile cores are U-235
@@ -59,7 +59,7 @@ nuclei_fissioned = fissions_per_cycle * 0.95 * (sigma_a_235 / sigma_f_235)
 N_U235_end = N_U235_start - fissions_per_cycle
 fuel_left_end = core_mass * NA / Ma_UO2
 enrichment_percent_end = N_U235_end / fuel_left_end
-print(enrichment_percent_end)
+
 
 #calculation of thermal fission factor n
 def calc_n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
@@ -87,7 +87,7 @@ print(f'n = {thermal_fission_factor_end} vid driftslut')
 resonance_passage_factor_start = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
 print (f'p = {resonance_passage_factor_start} vid start')
 resonance_passage_factor_end = calc_p(enrichment_percent_end, N_U, sigma_I_abs, xi_Sigma_s,3)
-
+print (f'p = {resonance_passage_factor_end} vid driftslut')
 
 # Calculating macroscopic absorption cross section for moderator (H2O)
 sigma_a_H = 0.332e-24    #Reaktorfysik KSU
@@ -105,7 +105,7 @@ T_half_Xe =  33120
 Lambda_Xe = math.log(2) / T_half_Xe
 
 Sigma_f_fuel = sigma_f_235 * enrichment_percent * rho_UO2 * NA / Ma_UO2     #Assumption: All fission occurs from U-235.
-neutron_flux = reactor_power_mwth / (sigma_f_235 * energy_per_fission * N_U235_start)   
+neutron_flux = reactor_power_wh / (sigma_f_235 * energy_per_fission * N_U235_start)   
 N_Xe = (yield_I + yield_Xe) * Sigma_f_fuel * neutron_flux / (Lambda_Xe + sigma_a_Xe * neutron_flux)
 
 # Finally calculating Macroscopic absorption cross section and volume fraction for Xe. 
