@@ -164,11 +164,6 @@ def calc_f(rod_insertion, scale_factor):
     
     return f
 
-rod_insertion_start = 0.0
-f_val = calc_f(rod_insertion_start, scale_factor = 0.15)
-print(f"f vid {rod_insertion_start*100}% inskjutning: {f_val:.4f}")
-
-# Beräkna de fem faktorerna
 
 # ε (epsilon) - Snabbfissionsfaktorn (antagen rimlig nivå för UO2 i BWR)
 epsilon = 1.06
