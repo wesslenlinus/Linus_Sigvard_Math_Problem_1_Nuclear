@@ -1,10 +1,9 @@
-"""The task is to make a preliminary design of a reactor so that it is critical (k=1) when it has reached equilibrium at full power at start-up and can be operated until the next fuel change. In the design work, you must choose the following parameters: reactor power, reactor size, operating time between fuel changes, reactor type, fuel, enrichment, moderator, moderator temperature, void, fuel dimension and moderator/fuel volume ratio. Explain how you use control rods, burnable absorbers and/or boron. The moderator temperature coefficient / void coefficient should be negative both at start-up and at the end of the operating period. Some of your own assumptions will need to be made, especially regarding neutron absorption in reactor poisons and construction materials."""
 import math as math
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import brentq
 
-NA = 6.022 * 10 ** 23  # Avogadros tal, st/mol
+NA = 6.022 * 10 ** 23  # Avogadro's number, pcs/mol
 
 #Technical specifications for Ringhals 1
 reactor_power_wh = 2540e6         
@@ -13,7 +12,6 @@ assemblies_mass = 193e3
 core_height_m = 3.7                 
 core_diameter_m = 5.95             
 core_mass = core_assemblies * assemblies_mass
-op_time_between_refueling_mo = 12   
 reactor_type = "BWR"  
 
 
@@ -21,7 +19,7 @@ reactor_type = "BWR"
 fuel_material = "UO2"  
 Ma_UO2 = 270  # g/mol UO2
 rho_UO2 = 10.97  # g/cm^3             
-enrichment_percent = 3.8/100
+enrichment_percent = 3/100  #Assumption based on course material
 N_U = (rho_UO2 * NA) / Ma_UO2
 N_U235 = enrichment_percent * N_U
 N_U238 = (1 - enrichment_percent) * N_U 
@@ -34,7 +32,7 @@ void_fraction = 0.40
 rho_steam = 36.53e-3  # g/cm^3 at T = 286 C and P = 7 MPa from
 rho_water = 739.7e-3  # g/cm^3
 rho_mod = void_fraction * rho_steam + (1 - void_fraction) * rho_water
-Ma_mod = 18  # g/cm^3 för H2O       
+Ma_mod = 18  # g/mol for H2O       
 mod_fuel_volume_ratio = 3        #(Vm/Vf) assumed given lectures in course
 sigma_I_abs = 20.0 * 10**-24    # barn converted to cm^2
 xi_Sigma_s = 0.8                # cm^-1 (assumed value for H2O)
@@ -49,7 +47,8 @@ sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
 
 #Fissile and fertile cores at the start of the cycle
 energy_per_fission = 3.2e-11     # Joules / Fission
-energy_per_cycle = reactor_power_wh * 60 * 60 * 24 * 365  # Assumption: 1 cycle = 1 year
+operating_days = 365 * 1.5
+energy_per_cycle = reactor_power_wh * 60 * 60 * 24 * operating_days  # Assumption: 1 cycle = 18 year
 N_U235_start = enrichment_percent * core_mass * NA / Ma_UO2  #Number of fissile cores at the start of the cycle. 
                                                              #Assumption: Only fissile cores are U-235
 N_U238_start = (1 - enrichment_percent) * core_mass * NA / Ma_UO2                                                             
@@ -84,17 +83,17 @@ def calc_p(e_frac, N_uran, sigma_I, xi_sigma_s, vm_vf_ratio):
 
 thermal_fission_factor_start = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
 thermal_fission_factor_end = calc_n(2.43, enrichment_percent_end, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
-print(f'n = {thermal_fission_factor_start} vid start')
-#print(f'n = {thermal_fission_factor_end} vid driftslut')
+print(f'n = {thermal_fission_factor_start} at start')
+#print(f'n = {thermal_fission_factor_end} at end of cycle')
 
 resonance_passage_factor_start = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
 resonance_passage_factor_end = calc_p(enrichment_percent_end, N_U, sigma_I_abs, xi_Sigma_s,3)
-print (f'p = {resonance_passage_factor_start} vid start')
-#print (f'p = {resonance_passage_factor_end} vid driftslut')
+print (f'p = {resonance_passage_factor_start} at start')
+#print (f'p = {resonance_passage_factor_end} at end of cycle')
 
 # Calculating macroscopic absorption cross section for moderator (H2O)
-sigma_a_H = 0.332e-24    #Reaktorfysik KSU
-sigma_a_H2O = 2 * sigma_a_H     #Presuming absorption for Oxygen = 0 (Reaktorfysik KSU)
+sigma_a_H = 0.332e-24    #Reactor Physics KSU
+sigma_a_H2O = 2 * sigma_a_H     #Presuming absorption for Oxygen = 0 (Reactor Physics KSU)
 Sigma_a_H2O = (rho_mod * NA) / Ma_mod * sigma_a_H2O
 
 # Calculating macroscopic absorption cross section for fuel (UO2)
@@ -141,13 +140,13 @@ def calc_mod_and_rod_volumes(rod_insertion, scale_factor):
     V_core = math.pi * core_height_m * 100 * (core_diameter_m * 100 / 2)**2    # Actual volume of the core
     V_tot_mod = V_core - V_fuel - V_tot_rods    
     V_rel_mod = V_tot_mod / V_fuel
-    #print(f'Volym mod: {V_tot_mod}')
-    #print(f'Volym fuel: {V_fuel}')
-    #print(f'Volym core: {V_core}')
+    #print(f'Volume mod: {V_tot_mod}')
+    #print(f'Volume fuel: {V_fuel}')
+    #print(f'Volume core: {V_core}')
     return V_rel_rods, V_rel_mod
 
 
-# Beräkning av termiska utnyttjandefaktorn (f)
+# Calculation of the thermal utilization factor (f)
 def calc_f(rod_insertion, scale_factor):
     V_rel_rods, V_rel_mod = calc_mod_and_rod_volumes(rod_insertion, scale_factor)
     
@@ -165,35 +164,86 @@ def calc_f(rod_insertion, scale_factor):
     return f
 
 
-# ε (epsilon) - Snabbfissionsfaktorn (antagen rimlig nivå för UO2 i BWR)
+# ε (epsilon) - Fast fission factor (assumed reasonable level for UO2 in BWR)
 epsilon = 1.06
 print(f'ε = {epsilon}')
 
-# P - Total icke-läckagefaktor (uppskattning för stor härd, annars 1.0 om läckage försummas)
+# P - Total non-leakage factor (estimate for large core, otherwise 1.0 if leakage is neglected)
 P_leakage = 0.97
 print (f'P = {P_leakage}')
 
-# Funktion för att beräkna k_eff
+# Function to calculate k_eff
 def calc_k_eff(n, E, p, f, P):
     return n * E * p * f * P
 
-# Funnction for calibrating k_eff = 1 by adjusting rod insertion. 
-def calc_k_eff_start(rod_insertion):
+
+# Making sure k = 1 at start and end by varying rod insertion. Also 
+def evaluate_reactor_state(rod_insertion, current_enrichment, current_void=0.40):
     
-    f = calc_f(rod_insertion=rod_insertion, scale_factor=0.15)
+    # 1. Calculate moderator density with void as a variable. 
+    current_rho_mod = current_void * rho_steam + (1 - current_void) * rho_water
+    density_ratio = current_rho_mod / (0.40 * rho_steam + (1 - 0.40) * rho_water)
+    
+    # Rescale parameters for absorption and moderating based on density
+    current_xi_Sigma_s = xi_Sigma_s * density_ratio
+    current_Sigma_a_H2O = Sigma_a_H2O * density_ratio
 
-    return calc_k_eff(
-        thermal_fission_factor_start,
-        epsilon,
-        resonance_passage_factor_start,
-        f,
-        P_leakage)
+    # Calculate n and p with current enrichment
+    n_val = calc_n(2.43, current_enrichment, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
+    p_val = calc_p(current_enrichment, N_U, sigma_I_abs, current_xi_Sigma_s, mod_fuel_volume_ratio)
+    
+    # Find the fuels microscopic absorption cross section as enrichment varies
+    N_235_current = current_enrichment * N_U
+    N_238_current = (1 - current_enrichment) * N_U
+    sig_a_fuel = sigma_a_235 * N_235_current + sigma_a_238 * N_238_current
+    
+    # 4. Calculate volumes and (f) as the rod insertion changes
+    V_rel_rods, V_rel_mod = calc_mod_and_rod_volumes(rod_insertion, scale_factor=0.15)
+    f_val = sig_a_fuel / (sig_a_fuel + current_Sigma_a_H2O * V_rel_mod + Sigma_a_Xe * V_rel_Xe + Sigma_a_bor * V_rel_rods)
+    
+    return calc_k_eff(n_val, epsilon, p_val, f_val, P_leakage)
 
-def criticality_condition(rod_insertion):
-    return calc_k_eff_start(rod_insertion) - 1.0
+# Find rod insertion for k = 1
+def target_critical(rod_insertion, current_enrichment):
+    return evaluate_reactor_state(rod_insertion, current_enrichment) - 1.0
 
-# Hitta styrstavsläget som ger k_eff = 1
-rod_insertion_critical = brentq( criticality_condition, 0.0, 0.70)
+rod_critical_start = brentq(target_critical, 0.0, 0.99, args=(enrichment_percent,))
+rod_critical_end = brentq(target_critical, 0.0, 0.99, args=(enrichment_percent_end,))
 
-print(f"Kritisk styrstavsinskjutning: {rod_insertion_critical * 100:.2f} %")
-print(f"k_eff vid driftstart: {calc_k_eff_start(rod_insertion_critical):.6f}")
+print("\n REACTOR STATE AT k=1 ")
+print(f"Start (Enrichment {enrichment_percent*100:.2f}%): Control rods {rod_critical_start*100:.1f}% inserted")
+print(f"End   (Enrichment {enrichment_percent_end*100:.2f}%): Control rods {rod_critical_end*100:.1f}% inserted")
+
+
+# Ploting void coefficients for the start and end of the cycle to prove that increasing the void would make the reactor undercritical. 
+
+print("\nCalculating data for void coefficient plot...")
+
+void_fractions = np.linspace(0.0, 0.8, 50)  # Test void from 0% to 80%
+k_eff_start_list = []
+k_eff_end_list = []
+
+for v in void_fractions:
+    # Call reactor function with v as void so that it varies. 
+    k_start = evaluate_reactor_state(rod_critical_start, enrichment_percent, current_void=v)
+    k_end = evaluate_reactor_state(rod_critical_end, enrichment_percent_end, current_void=v)
+    
+    k_eff_start_list.append(k_start)
+    k_eff_end_list.append(k_end)
+
+# Plotting the results
+plt.figure(figsize=(10, 6))
+plt.plot(void_fractions * 100, k_eff_start_list, label="Start of Cycle (BOC)", color="blue", linewidth=2)
+plt.plot(void_fractions * 100, k_eff_end_list, label="End of Cycle (EOC)", color="red", linewidth=2, linestyle='--')
+
+# Mark void point (40%), which is the void we have assumed in the assigment. 
+plt.axvline(40, color='gray', linestyle=':', label='Operational Void (40%)')
+plt.axhline(1.0, color='black', linestyle='-', linewidth=1, label='Criticality (k = 1)')
+
+plt.title("Void Coefficient: $k_{eff}$ vs Void Fraction", fontsize=14)
+plt.xlabel("Void Fraction (%)", fontsize=12)
+plt.ylabel("Effective Multiplication Factor ($k_{eff}$)", fontsize=12)
+plt.legend(fontsize=10)
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.tight_layout()
+plt.show()
