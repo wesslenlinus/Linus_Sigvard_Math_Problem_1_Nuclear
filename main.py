@@ -217,8 +217,6 @@ print(f"End   (Enrichment {enrichment_percent_end*100:.2f}%): Control rods {rod_
 
 # Ploting void coefficients for the start and end of the cycle to prove that increasing the void would make the reactor undercritical. 
 
-print("\nCalculating data for void coefficient plot...")
-
 void_fractions = np.linspace(0.0, 0.8, 50)  # Test void from 0% to 80%
 k_eff_start_list = []
 k_eff_end_list = []
