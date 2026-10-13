@@ -2,6 +2,7 @@
 import math as math
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.optimize import brentq
 
 NA = 6.022 * 10 ** 23  # Avogadros tal, st/mol
 
@@ -11,7 +12,7 @@ core_assemblies = 648
 assemblies_mass = 193e3                
 core_height_m = 3.7                 
 core_diameter_m = 5.95             
-core_mass = core_assemblies * assemblies_mass #kg
+core_mass = core_assemblies * assemblies_mass
 op_time_between_refueling_mo = 12   
 reactor_type = "BWR"  
 
@@ -24,7 +25,6 @@ enrichment_percent = 3.8/100
 N_U = (rho_UO2 * NA) / Ma_UO2
 N_U235 = enrichment_percent * N_U
 N_U238 = (1 - enrichment_percent) * N_U 
-print(N_U235)
 
 
 #moderator specifications
@@ -39,19 +39,21 @@ mod_fuel_volume_ratio = 3        #(Vm/Vf) assumed given lectures in course
 sigma_I_abs = 20.0 * 10**-24    # barn converted to cm^2
 xi_Sigma_s = 0.8                # cm^-1 (assumed value for H2O)
 
+
 # cross sections from nndc.bnl.gov
 sigma_f_235 = 596 * 10 ** -24  # barn
 sigma_a_235 = 97.6 * 10 ** -24 + sigma_f_235  #(n,gamma) + (n, total fission)  # barn
 sigma_f_238 = 1.76 * 10 ** -5 * 10 ** -24
 sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
 
+
 #Fissile and fertile cores at the start of the cycle
 energy_per_fission = 3.2e-11     # Joules / Fission
 energy_per_cycle = reactor_power_wh * 60 * 60 * 24 * 365  # Assumption: 1 cycle = 1 year
 N_U235_start = enrichment_percent * core_mass * NA / Ma_UO2  #Number of fissile cores at the start of the cycle. 
-print(N_U235_start)
                                                              #Assumption: Only fissile cores are U-235
 N_U238_start = (1 - enrichment_percent) * core_mass * NA / Ma_UO2                                                             
+
 
 #Fissile and fertile cores at the end of the cycle
 fissions_per_cycle = energy_per_cycle / energy_per_fission 
@@ -79,15 +81,16 @@ def calc_p(e_frac, N_uran, sigma_I, xi_sigma_s, vm_vf_ratio):
     p = (math.e ** (exponent))
     return p
 
+
 thermal_fission_factor_start = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
 thermal_fission_factor_end = calc_n(2.43, enrichment_percent_end, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
 print(f'n = {thermal_fission_factor_start} vid start')
-print(f'n = {thermal_fission_factor_end} vid driftslut')
+#print(f'n = {thermal_fission_factor_end} vid driftslut')
 
 resonance_passage_factor_start = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
-print (f'p = {resonance_passage_factor_start} vid start')
 resonance_passage_factor_end = calc_p(enrichment_percent_end, N_U, sigma_I_abs, xi_Sigma_s,3)
-print (f'p = {resonance_passage_factor_end} vid driftslut')
+print (f'p = {resonance_passage_factor_start} vid start')
+#print (f'p = {resonance_passage_factor_end} vid driftslut')
 
 # Calculating macroscopic absorption cross section for moderator (H2O)
 sigma_a_H = 0.332e-24    #Reaktorfysik KSU
@@ -179,17 +182,23 @@ print (f'P = {P_leakage}')
 def calc_k_eff(n, E, p, f, P):
     return n * E * p * f * P
 
-# Kör beräkning för 0% inskjutning (helt utdragna stavar) 
-print("\n--- Körning vid 0% inskjutning ---")
-f_val_0 = calc_f(rod_insertion=0.0, scale_factor=0.1254)
-k_eff_0 = calc_k_eff(thermal_fission_factor_start, epsilon, resonance_passage_factor_start, f_val_0, P_leakage)
-print(f"f vid 0%: {f_val_0:.4f}")
-print(f"k_eff vid 0% inskjutning: {k_eff_0:.4f}")
+# Funnction for calibrating k_eff = 1 by adjusting rod insertion. 
+def calc_k_eff_start(rod_insertion):
+    
+    f = calc_f(rod_insertion=rod_insertion, scale_factor=0.15)
 
-# Kör beräkning för 70% inskjutning (driftstart)
-print("\n--- Körning vid 70% inskjutning ---")
-f_val_70 = calc_f(rod_insertion=0.70, scale_factor=0.1254)
-k_eff_70 = calc_k_eff(thermal_fission_factor_start, epsilon, resonance_passage_factor_start, f_val_70, P_leakage)
-print(f"f vid 70%: {f_val_70:.4f}")
-print(f"k_eff vid 70% inskjutning: {k_eff_70:.4f}")
+    return calc_k_eff(
+        thermal_fission_factor_start,
+        epsilon,
+        resonance_passage_factor_start,
+        f,
+        P_leakage)
 
+def criticality_condition(rod_insertion):
+    return calc_k_eff_start(rod_insertion) - 1.0
+
+# Hitta styrstavsläget som ger k_eff = 1
+rod_insertion_critical = brentq( criticality_condition, 0.0, 0.70)
+
+print(f"Kritisk styrstavsinskjutning: {rod_insertion_critical * 100:.2f} %")
+print(f"k_eff vid driftstart: {calc_k_eff_start(rod_insertion_critical):.6f}")
