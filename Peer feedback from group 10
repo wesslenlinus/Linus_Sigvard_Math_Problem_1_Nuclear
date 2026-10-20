@@ -4,25 +4,29 @@ Ingen README, requirements.txt, CODE_DOCUMENTATION.md or IMPROVEMENT_LOG.md
 Kommentarer på koden:
 “# Assumption: 1 cycle = 18 year” typo
 
-Nuclei_fissioned borde vara be fissile_gone and N_U235_end = N_U235_start-fissile_gone. 
+Nuclei_fissioned borde vara be fissile_gone och N_U235_end = N_U235_start-fissile_gone. 
 “fissions_per_cycle = energy_per_cycle / energy_per_fission 
 nuclei_fissioned = fissions_per_cycle * 0.95 * (sigma_a_235 / sigma_f_235)
 N_U235_end = N_U235_start - fissions_per_cycle”
 
-Det finns två moderetorvolymer, en ni sätter till 3 och en som beräknas från geometrin. V_rel_mod och mod_fuel_volume_ratio = 3 
+Det finns två moderator-bräsnlevolymförhållanden, en ni sätter till 3 och en som beräknas från geometrin. V_rel_mod (som blir ~8) och mod_fuel_volume_ratio = 3, använd 1 av dem och kika på varför den ena blir 8.
 
-Använd publicerad data på massa U för ringhals 1 eller kutsradie^2*pi*kutshöjd*kuts_per_stav*stav_per_element*element istället för att gissa “assemblies_mass = 193e3” inför beräkningen på rad 132, eller motivera varför vi sätter 193e3 som massa bränsle och döp den till assemblie...mass_UO2. Rad 132 “V_fuel = core_mass / rho_UO2    # Under the assumption that the full core is made up of fuel”
+Använd publicerad data på massa U för ringhals 1 eller kutsradie^2*pi*kutshöjd*kuts_per_stav*stav_per_element*element*densitet istället för att gissa “assemblies_mass = 193e3” inför beräkningen på rad 132, eller motivera i texten varför vi sätter 193e3 som massa bränsle och döp den till assemblie...mass_UO2. Rad 132 “V_fuel = core_mass / rho_UO2    # Under the assumption that the full core is made up of fuel”
 
-N_Xe beräknar ni per cm^3 bränsle, sedan tar ni “V_rel_Xe = N_Xe / N_U” för att göra det igen. Ta bort V_rel_Xe
+N_Xe beräknar ni per cm^3 bränsle, sedan tar ni “V_rel_Xe = N_Xe / N_U” för att göra det igen. Ta bort V_rel_Xe. Sigma_f_fuel * neutron_flux beräknar fissioner per cm3 bränsle.
 
 N_Xe beräknas bara i början av cykeln. Värdet är något högre i slutet med fögre n_flux.
 
-Hur motiveras “scale_factor=0.15”. Snyggare att räkna med effektiv volym där ni använder ytan*medelfriväg istället för hela volymen då flödet är 0 mitten av stavarna.
-“Sigma_a_bor = N_B4C * sigma_a_bor” det finns 4 st B per B4C och ni har angett sigma_a för B10, vilket är bra men ange även B10 halten i era stavar eller nämn antagandet med 100% B10.
+“Sigma_a_bor = N_B4C * sigma_a_bor” det finns 4 st B per B4C, ni räknar med 1, och ni har angett sigma_a för B10, ange även B10 halten i ert B eller nämn antagandet med 100% B10.
 
-Saknas:
+Kommentarera på texten:
+Svar motivering av “scale_factor=0.15”. Snyggare att räkna med verklig effektiv volym där ni använder ytan*medelfriväg istället för hela volymen.
+Separera inputs från assumptions och givna publicerade konstater från ringhals
+
+Saknas enligt uppgiften:
 Konversionskvot
-Strukturmaterial
+
+
 
 
 
