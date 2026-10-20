@@ -1,6 +1,5 @@
 Ingen README, requirements.txt, CODE_DOCUMENTATION.md or IMPROVEMENT_LOG.md
 
-
 Kommentarer på koden:
 “# Assumption: 1 cycle = 18 year” typo
 
@@ -22,6 +21,19 @@ N_Xe beräknas bara i början av cykeln. Värdet är något högre i slutet med 
 Kommentarera på texten:
 Svar motivering av “scale_factor=0.15”. Snyggare att räkna med verklig effektiv volym där ni använder ytan*medelfriväg istället för hela volymen.
 Separera inputs från assumptions och givna publicerade konstater från ringhals
+
+1 Introduction
+
+Introduktionen börjar direkt väldigt inriktad på kärnkraft, kanske bättre att börja lite mer öppet, t.ex. vilken roll kärnkraft spelar i samhället och för framtiden, sedan gå mer in på djupet ex. Varför effekten behöver regleras, för att sedan förklara vad effekten beror på (det ni redan skrivit).
+
+2.1 Assumptions
+
+Många av era antaganden är egentligen bara parametrar och konstanter som ni har källa på eller kända värden. Assumptions tolkar jag som de antaganden man är tvungen att göra då det inte finns eller är svårt att hitta någon data på det, exempelvis volymförhållandet, snabba fissionfaktorn, bränsletemperaturen etc.
+
+Ekvation 6
+
+Lite otydligt vad w(blade) och t(blade) är för något, men jag antar att det är bredden och längden på de två rektanglarna som ni säger överlappar till ett kryss. Med denna beräkning blir inte den överlappande delen av arean dubbel beräknad, alltså arean blir väl bredd gånger.
+
 
 Saknas enligt uppgiften:
 Konversionskvot
