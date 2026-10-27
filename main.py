@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import brentq
 
-NA = 6.022 * 10 ** 23  # Avogadro's number, pcs/mol
+NA = 6.022 * 10 ** 23 # Avogadro's number, pcs/mol
 
 # Technical specifications for Ringhals 1, all are taken from the official specifications from Vattenfall
 reactor_power_wh = 2540e6         
