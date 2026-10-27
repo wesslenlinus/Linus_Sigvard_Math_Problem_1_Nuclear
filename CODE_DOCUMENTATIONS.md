@@ -1,7 +1,7 @@
 ## Assumptions (same as in LaTeX report)
 The following assumptions have been made:
 
-### Reactor Parameters (Ringhals 1)
+### Reactor Parameters (available specifications taken from Ringhals 1)
 * **Reactor Type:** BWR
 * **Thermal Power:** 2540 MW
 * **Core Dimensions (H x D):** 3.7 m x 5.95 m
