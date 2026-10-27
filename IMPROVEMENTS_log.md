@@ -1,5 +1,6 @@
 | Date       | Commit  | Author  | Branch        | What was changed                                 | Why                                                  | Effect on results                                |
 | ---------- | ------- | ------- | ------------- | ------------------------------------------------ | ---------------------------------------------------- | ------------------------------------------------ |
+| Oct 27, 2026 | 07bd867 | LW     | main | Final commit  | - | - |
 | Oct 27, 2026 | a1b2c3d | SH      | sigges-branch | Added B4C atomic multiplier and B-10 enrichment  | To account for 4 Boron atoms/molecule and 19.9% B-10 | Corrects macroscopic absorption for control rods |
 | Oct 27, 2026 | e4f5g6h | SH      | sigges-branch | Made Xenon-135 dynamic inside evaluate function  | Neutron flux changes as fissile nuclei deplete       | Provides accurate EOC poisoning and f-factor     |
 | Oct 27, 2026 | i7j8k9l | SH      | sigges-branch | Locked relative moderator volume to constant 3   | Rod insertion volume displacement is negligible      | Prevents volume ratio bug (kept constant at 3)   |
