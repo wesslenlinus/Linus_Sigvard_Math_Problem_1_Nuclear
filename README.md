@@ -11,7 +11,7 @@ Using the "five factor formula" (k=nfpeP) the multiplication factor for a reacto
 The program is run in the main.py file. All assumptions and values are also listed in main.py, and it is in that file where changes to parameters can be made.
 
 ## What each file contains and how this GitHub is organized:
-main.py contains all functions and parameters and is also where the code is run. Final commit made with identifier: 77da982
+main.py contains all functions and parameters and is also where the code is run. Final commit made with identifier: 07bd867
 
 IMPROVEMENT_LOG is a log concluding how the program has been developed, and it is based upon all previous commits made in all branches in the main.py file.
 
