@@ -6,7 +6,7 @@ The following assumptions have been made:
 * **Thermal Power:** 2540 MW
 * **Core Dimensions (H x D):** 3.7 m x 5.95 m
 * **Number of Fuel Assemblies:** 648
-* **Operating Cycle:** 12 months
+* **Operating Cycle:** 18 months
 
 ### Fuel and Control Rod Parameters
 * **Fuel Material:** UO₂
