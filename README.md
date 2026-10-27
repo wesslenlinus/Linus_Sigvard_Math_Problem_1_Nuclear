@@ -13,6 +13,8 @@ The program is run in the main.py file. All assumptions and values are also list
 ## What each file contains and how this GitHub is organized:
 main.py contains all functions and parameters and is also where the code is run.
 
-IMPROVMENT_LOG is a log concluding how the program has been developed, and it is based upon all previous commits made in all branches in the main.py file.
+IMPROVEMENT_LOG is a log concluding how the program has been developed, and it is based upon all previous commits made in all branches in the main.py file.
 
 CODE_DOCUMENTATIONS.md states all assumptions made and largely matches the "Assumptions" section in the report.
+
+requirements.txt is a file that states what packages are necessary for running main.py.
