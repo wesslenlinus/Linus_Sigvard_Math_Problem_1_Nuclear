@@ -51,4 +51,4 @@ The following assumptions have been made:
 * **Active Absorbers:** Thermal neutron capture is assumed to occur *only* in the fuel (U-235, U-238), the moderator (H₂O), Xenon-135 (treated as the sole reactor poison), and the B₄C control rods.
 * **Ignored Materials:** Absorption from Zircaloy cladding, internal structural components, and other fission poisons (such as Samarium-149) is strictly neglected.
 * **Control Rod Self-Shielding:** Because B₄C is an exceptionally strong absorber, an empirical scaling factor of 0.15 is applied to the physical control rod volume to account for spatial self-shielding (flux depression) at the blade surfaces.
-* **Moderator Volume:** The available water moderator is calculated dynamically as the remaining empty space in the core after subtracting the fixed fuel volume and the currently inserted control rod volume.
+* **Moderator Volume:** The volume ratio is a fixed parameter listed above as 3. 
