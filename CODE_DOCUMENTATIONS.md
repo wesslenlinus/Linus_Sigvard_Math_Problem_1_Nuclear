@@ -32,7 +32,7 @@ The following assumptions have been made:
 * **Cumulative Iodine Yield (γ_I):** 6.437 %
 * **Independent Xenon Yield (γ_{Xe}):** 0.1016 %
 
-## Modeling Assumptions for the Five-Factor Formula (same as in LaTeX report)
+## Modelling Assumptions for the Five-Factor Formula (same as in LaTeX report)
 
 ### General Reactor & Fuel Usage
 * **Sole Fissile Isotope:** Uranium-235 is assumed to be the only fissile isotope throughout the entire operating cycle. The model explicitly neglects the breeding and subsequent fissioning of Plutonium-239.
