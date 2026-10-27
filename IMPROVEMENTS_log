@@ -17,7 +17,17 @@
 | Oct 10, 2026 | 61535b8 | SH | main | Macroscopic absorption cross section calculated | Necessary for cross-section calculation | Macroscopic cross-section ready |
 | Oct 10, 2026 | 023b61a | SH | main | Macroscopic | Initiate macroscopic cross-sections | Variables for cross-sections added |
 | Oct 10, 2026 | c8d34fc | SH | main | Synkar med Linus kod | Merge the codebases | Codebases are successfully unified |
+| Oct 10, 2026 | 73a7d7e | LW | linus-branch | structure | Reorganize code layout | Cleaner code architecture |
+| Oct 10, 2026 | 6038215 | LW | linus-branch | resonance_passage_factor | Implement calculation for p | The resonance passage factor (p) is now available |
+| Oct 8, 2026 | a1ef56d | LW | linus-branch | rough outline of p calculation | Initial draft for p calculation | Basic logic for p exists |
+| Oct 8, 2026 | 94760cb | LW | linus-branch | revised calc | Fix mathematical calculations | Improved mathematical accuracy |
+| Oct 8, 2026 | e00168c | LW | linus-branch | Thermal fission factor calculation rough sketch | Draft the thermal fission factor (eta) | Basic logic for eta is implemented |
+| Oct 8, 2026 | 5a0d905 | LW | linus-branch | structure update | Update file organization | Better code readability |
+| Oct 8, 2026 | 464262c | LW | linus-branch | cross sections input | Add cross-section constants | Necessary physics parameters are available |
 | Oct 8, 2026 | 8f894c0 | SH | main | Påbörjat koden för f | Start of implementation for f | Basic structure for f exists |
+| Oct 7, 2026 | c75b0fb | LW | linus-branch | Rouch outline fucntion n | Draft function for n (eta) | Initial function signature created |
+| Oct 7, 2026 | c5aea53 | SH | linus-branch | amend | Adjust previous commit | Cleaner git history |
+| Oct 7, 2026 | 7851640 | LW | linus-branch | k input | Define the k-equation (k=n*E*p*f*P) | The main multiplication factor k is defined |
 | Oct 7, 2026 | 9fb78da | SH | main | Test för ändring i branch | Verify branch functionality | - |
 | Oct 7, 2026 | e1d22cc | LW | main | Linus branch | Create branch for Linus | New branch registered |
 | Oct 7, 2026 | c5aea53 | SH | main | amend | Adjust previous commit | Cleaner git history |
