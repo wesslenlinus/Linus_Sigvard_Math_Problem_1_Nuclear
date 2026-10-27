@@ -1,4 +1,4 @@
-##The following packages are used in main.py:
+The following packages are used in main.py:
 
 math as math
 matplotlib.pyplot as plt
