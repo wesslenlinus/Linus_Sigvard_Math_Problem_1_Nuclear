@@ -1,0 +1,6 @@
+##The following packages are used in main.py:
+
+math as math
+matplotlib.pyplot as plt
+numpy as np
+from scipy.optimize we import brentq
