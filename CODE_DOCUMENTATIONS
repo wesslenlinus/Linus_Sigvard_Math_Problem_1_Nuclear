@@ -1,0 +1,33 @@
+## Assumptions (same as in LaTeX)
+The following assumptions have been made:
+
+### Reactor Parameters (Ringhals 1)
+* **Reactor Type:** BWR
+* **Thermal Power:** 2540 MW
+* **Core Dimensions (H x D):** 3.7 m x 5.95 m
+* **Number of Fuel Assemblies:** 648
+* **Operating Cycle:** 12 months
+
+### Fuel and Control Rod Parameters
+* **Fuel Material:** UO₂
+* **Enrichment (²³⁵U):** 3.0 %
+* **Fuel Density (ρ_UO₂):** 10.97 g/cm³
+* **Control Rod Material:** B₄C
+* **Control Rod Density (ρ_B₄C):** 2.52 g/cm³
+* **Number of Control Rods:** 157
+* **Calibration Factor:** 0.15
+
+### Moderator Parameters
+* **Moderator Material:** H₂O (light water)
+* **Temperature:** 286 °C
+* **Void Fraction:** 40 %
+* **Volume Ratio (V_m/V_u):** 3
+
+### Physical Cross Sections and Constants
+* **Energy per Fission:** 3.2 × 10⁻¹¹ J
+* **Effective Resonance Integral (σ_{I,abs}):** 20 barn
+* **Slowing-down Power (ξΣ_s):** 0.8 cm⁻¹
+* **Fission Cross Section (σ_{f,235}):** 596 barn
+* **Absorption H₂O (σ_{a,H2O}):** 0.664 barn
+* **Cumulative Iodine Yield (γ_I):** 6.437 %
+* **Independent Xenon Yield (γ_{Xe}):** 0.1016 %
