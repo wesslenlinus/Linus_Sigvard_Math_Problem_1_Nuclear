@@ -5,38 +5,35 @@ from scipy.optimize import brentq
 
 NA = 6.022 * 10 ** 23  # Avogadro's number, pcs/mol
 
-#Technical specifications for Ringhals 1
+# Technical specifications for Ringhals 1, all are taken from the official specifications from Vattenfall
 reactor_power_wh = 2540e6         
 core_assemblies = 648
-assemblies_mass = 193e3                
+assembly_mass_UO2_g = 193e3    # 193 kg UO2 per assembly (public data from Vattenfall)
 core_height_m = 3.7                 
 core_diameter_m = 5.95             
-core_mass = core_assemblies * assemblies_mass
+core_mass = core_assemblies * assembly_mass_UO2_g
 reactor_type = "BWR"  
 
-
-#fuel specifications
+# fuel specifications
 fuel_material = "UO2"  
 Ma_UO2 = 270  # g/mol UO2
 rho_UO2 = 10.97  # g/cm^3             
-enrichment_percent = 3/100  #Assumption based on course material
+enrichment_percent = 3/100  # Assumption based on course material
 N_U = (rho_UO2 * NA) / Ma_UO2
 N_U235 = enrichment_percent * N_U
 N_U238 = (1 - enrichment_percent) * N_U 
 
-
-#moderator specifications
+# moderator specifications
 moderator = "H2O"                  
 moderator_temp_c = (286.0 + 273)    
 void_fraction = 0.40                
-rho_steam = 36.53e-3  # g/cm^3 at T = 286 C and P = 7 MPa from
+rho_steam = 36.53e-3  # g/cm^3 at T = 286 C and P = 7 MPa
 rho_water = 739.7e-3  # g/cm^3
 rho_mod = void_fraction * rho_steam + (1 - void_fraction) * rho_water
 Ma_mod = 18  # g/mol for H2O       
-mod_fuel_volume_ratio = 3        #(Vm/Vf) assumed given lectures in course
+mod_fuel_volume_ratio = 3        # (Vm/Vf) assumed given lectures in course
 sigma_I_abs = 20.0 * 10**-24    # barn converted to cm^2
 xi_Sigma_s = 0.8                # cm^-1 (assumed value for H2O)
-
 
 # cross sections from nndc.bnl.gov
 sigma_f_235 = 596 * 10 ** -24  # barn
@@ -44,140 +41,82 @@ sigma_a_235 = 97.6 * 10 ** -24 + sigma_f_235  #(n,gamma) + (n, total fission)  #
 sigma_f_238 = 1.76 * 10 ** -5 * 10 ** -24
 sigma_a_238 = 2.78 * 10 ** -24 + sigma_f_238
 
-
-#Fissile and fertile cores at the start of the cycle
+# Fissile and fertile cores at the start of the cycle
 energy_per_fission = 3.2e-11     # Joules / Fission
 operating_days = 365 * 1.5
-energy_per_cycle = reactor_power_wh * 60 * 60 * 24 * operating_days  # Assumption: 1 cycle = 18 year
-N_U235_start = enrichment_percent * core_mass * NA / Ma_UO2  #Number of fissile cores at the start of the cycle. 
-                                                             #Assumption: Only fissile cores are U-235
-N_U238_start = (1 - enrichment_percent) * core_mass * NA / Ma_UO2                                                             
+energy_per_cycle = reactor_power_wh * 60 * 60 * 24 * operating_days  # Assumption: 1 cycle = 18 months
+N_U235_start = enrichment_percent * core_mass * NA / Ma_UO2  
 
-
-#Fissile and fertile cores at the end of the cycle
+# Fissile and fertile cores at the end of the cycle
 fissions_per_cycle = energy_per_cycle / energy_per_fission 
-nuclei_fissioned = fissions_per_cycle * 0.95 * (sigma_a_235 / sigma_f_235)
-N_U235_end = N_U235_start - fissions_per_cycle
+fissile_gone = fissions_per_cycle * 0.95 * (sigma_a_235 / sigma_f_235)
+N_U235_end = N_U235_start - fissile_gone
 fuel_left_end = core_mass * NA / Ma_UO2
 enrichment_percent_end = N_U235_end / fuel_left_end
 
-
-#calculation of thermal fission factor n
+# calculation of thermal fission factor n
 def calc_n(nu_bar, e, sigmaF235, sigmaC235, sigmaC238):
-
-    # Number of U235 nuclides per cm^3 fuel
     N235 = e * N_U
-    # Number of U238 nuclides per cm^3 fuel
     N238 = (1 - e) * N_U
-
     n = nu_bar * (e * sigmaF235) / (e * (sigmaF235 + sigmaC235) + (1 - e) * sigmaC238)
-
-    return(n)
-
+    return n
 
 def calc_p(e_frac, N_uran, sigma_I, xi_sigma_s, vm_vf_ratio):
     exponent = -(1.0 - e_frac) * (N_uran * sigma_I / xi_sigma_s) * (1.0 / vm_vf_ratio)
     p = (math.e ** (exponent))
     return p
 
-
-thermal_fission_factor_start = calc_n(2.43, enrichment_percent, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
-thermal_fission_factor_end = calc_n(2.43, enrichment_percent_end, sigma_f_235, sigma_a_235-sigma_f_235, sigma_a_238-sigma_f_238)
-print(f'n = {thermal_fission_factor_start} at start')
-#print(f'n = {thermal_fission_factor_end} at end of cycle')
-
-resonance_passage_factor_start = calc_p(enrichment_percent, N_U, sigma_I_abs, xi_Sigma_s,3)
-resonance_passage_factor_end = calc_p(enrichment_percent_end, N_U, sigma_I_abs, xi_Sigma_s,3)
-print (f'p = {resonance_passage_factor_start} at start')
-#print (f'p = {resonance_passage_factor_end} at end of cycle')
-
 # Calculating macroscopic absorption cross section for moderator (H2O)
 sigma_a_H = 0.332e-24    #Reactor Physics KSU
 sigma_a_H2O = 2 * sigma_a_H     #Presuming absorption for Oxygen = 0 (Reactor Physics KSU)
 Sigma_a_H2O = (rho_mod * NA) / Ma_mod * sigma_a_H2O
 
-# Calculating macroscopic absorption cross section for fuel (UO2)
-Sigma_a_fuel = sigma_a_235 * N_U235 + sigma_a_238 * N_U238  
-
-# Calculating reactor poisoning from 135Xe. We assume all poisoning is due to Xenon 135.
+# Constants for Reactor poisoning from 135Xe
 sigma_a_Xe = 2.6e-18 
-yield_Xe = 1.016e-3     #Independent fission yield at e = 0.0253 eV
-yield_I = 6.437e-2      #Cumulative fission yield at e = 0.0253 eV. Because Te-135 has T1/2 = 19.6s we assume all Te-135 is I-135 at equilibrium. 
+yield_Xe = 1.016e-3     
+yield_I = 6.437e-2      
 T_half_Xe =  33120
 Lambda_Xe = math.log(2) / T_half_Xe
-
-Sigma_f_fuel = sigma_f_235 * enrichment_percent * rho_UO2 * NA / Ma_UO2     #Assumption: All fission occurs from U-235.
-neutron_flux = reactor_power_wh / (sigma_f_235 * energy_per_fission * N_U235_start)   
-N_Xe = (yield_I + yield_Xe) * Sigma_f_fuel * neutron_flux / (Lambda_Xe + sigma_a_Xe * neutron_flux)
-
-# Finally calculating Macroscopic absorption cross section and volume fraction for Xe. 
-Sigma_a_Xe = N_Xe * sigma_a_Xe
-V_rel_Xe = N_Xe / N_U   
 
 # Next step is calculating the safety rods physical specifications. In Ringhals the safety rods are B4C.
 rho_B4C = 2.52  #g/cm^3
 Ma_B4C = 55.26  #g/mol
 number_of_rods = 157    #From Ringhals specifications
-blade_width_rod = 15   #cm Assumed values
-thickness_rod = 0.5  #cm
-N_B4C = rho_B4C*NA/Ma_B4C
-sigma_a_bor = 3840e-24
-Sigma_a_bor = N_B4C * sigma_a_bor
+blade_width_rod = 15   #cm Assumed value based on course material
+thickness_rod = 0.5  #cm Assumed value based on course material
+N_B4C = rho_B4C * NA / Ma_B4C
+sigma_a_B10 = 3840e-24
+B10_enrichment = 0.199  # Assuming natural boron is ~19.9% B-10
 
+# 4 Boron atoms per B4C molecule, scaled by B-10 enrichment
+Sigma_a_bor = 4 * N_B4C * sigma_a_B10 * B10_enrichment
 
 def calc_mod_and_rod_volumes(rod_insertion, scale_factor):
     length_rod = core_height_m * 100 * rod_insertion 
-
-    #Relative and total volume of the control rods
-    V_fuel = core_mass / rho_UO2    # Under the assumption that the full core is made up of fuel
-    V_tot_rods = number_of_rods * (2 * length_rod * blade_width_rod  * thickness_rod)
-    # scale_factor: Accounting for the self-shielding and decrease of neutron flux around the rod.
-
+    V_fuel = core_mass / rho_UO2    
+    
+    # Corrected area: (width*thickness)*2 - (thickness^2) to avoid double counting the center cross
+    cross_area = (2 * blade_width_rod * thickness_rod) - (thickness_rod**2)
+    V_tot_rods = number_of_rods * (length_rod * cross_area)
+    
     # Calibrated by making sure k_eff = 1 at start. 
     V_rel_rods = V_tot_rods / V_fuel * scale_factor
 
-    #Volume of the moderator. The difference between full volume of the core and the volumes of fuel and control rods is calculated. 
-    V_core = math.pi * core_height_m * 100 * (core_diameter_m * 100 / 2)**2    # Actual volume of the core
-    V_tot_mod = V_core - V_fuel - V_tot_rods    
-    V_rel_mod = V_tot_mod / V_fuel
-    #print(f'Volume mod: {V_tot_mod}')
-    #print(f'Volume fuel: {V_fuel}')
-    #print(f'Volume core: {V_core}')
+    # We now enforce the assumed volume ratio for the moderator (3) instead of geometric calculation
+    V_rel_mod = mod_fuel_volume_ratio 
+    
     return V_rel_rods, V_rel_mod
 
-
-# Calculation of the thermal utilization factor (f)
-def calc_f(rod_insertion, scale_factor):
-    V_rel_rods, V_rel_mod = calc_mod_and_rod_volumes(rod_insertion, scale_factor)
-    
-    f_fuel = Sigma_a_fuel 
-    f_Xe = Sigma_a_Xe * V_rel_Xe
-    f_mod = Sigma_a_H2O * V_rel_mod
-    f_rods = Sigma_a_bor * V_rel_rods
-    
-    f = f_fuel / (f_fuel + f_mod + f_Xe + f_rods)
-    #print("f_fuel:", f_fuel)
-    #print("f_mod:", f_mod)
-    #print("f_Xe:", f_Xe)
-    #print("f_rods:", f_rods)
-    
-    return f
-
-
-# ε (epsilon) - Fast fission factor (assumed reasonable level for UO2 in BWR)
+# ε (epsilon) - Fast fission factor
 epsilon = 1.06
-print(f'ε = {epsilon}')
 
-# P - Total non-leakage factor (estimate for large core, otherwise 1.0 if leakage is neglected)
+# P - Total non-leakage factor
 P_leakage = 0.97
-print (f'P = {P_leakage}')
 
-# Function to calculate k_eff
 def calc_k_eff(n, E, p, f, P):
     return n * E * p * f * P
 
-
-# Making sure k = 1 at start and end by varying rod insertion. Also 
+# Making sure k = 1 at start and end by varying rod insertion. 
 def evaluate_reactor_state(rod_insertion, current_enrichment, current_void=0.40):
     
     # 1. Calculate moderator density with void as a variable. 
@@ -197,44 +136,57 @@ def evaluate_reactor_state(rod_insertion, current_enrichment, current_void=0.40)
     N_238_current = (1 - current_enrichment) * N_U
     sig_a_fuel = sigma_a_235 * N_235_current + sigma_a_238 * N_238_current
     
-    # 4. Calculate volumes and (f) as the rod insertion changes
-    V_rel_rods, V_rel_mod = calc_mod_and_rod_volumes(rod_insertion, scale_factor=0.15)
-    f_val = sig_a_fuel / (sig_a_fuel + current_Sigma_a_H2O * V_rel_mod + Sigma_a_Xe * V_rel_Xe + Sigma_a_bor * V_rel_rods)
+    # Dynamic Xenon calculation based on current enrichment and flux
+    sig_f_fuel_current = sigma_f_235 * N_235_current
+    N_U235_core_current = current_enrichment * core_mass * NA / Ma_UO2
+    current_neutron_flux = reactor_power_wh / (sigma_f_235 * energy_per_fission * N_U235_core_current)
     
-    return calc_k_eff(n_val, epsilon, p_val, f_val, P_leakage)
+    N_Xe_current = (yield_I + yield_Xe) * sig_f_fuel_current * current_neutron_flux / (Lambda_Xe + sigma_a_Xe * current_neutron_flux)
+    sig_a_Xe_current = N_Xe_current * sigma_a_Xe
+    
+    # Calculate volumes and (f) as the rod insertion changes
+    V_rel_rods, V_rel_mod = calc_mod_and_rod_volumes(rod_insertion, scale_factor=0.15)
+    f_val = sig_a_fuel / (sig_a_fuel + current_Sigma_a_H2O * V_rel_mod + sig_a_Xe_current + Sigma_a_bor * V_rel_rods)
+    
+    k_eff = calc_k_eff(n_val, epsilon, p_val, f_val, P_leakage)
+    
+    return k_eff, n_val, epsilon, p_val, f_val, P_leakage
 
 # Find rod insertion for k = 1
 def target_critical(rod_insertion, current_enrichment):
-    return evaluate_reactor_state(rod_insertion, current_enrichment) - 1.0
+    return evaluate_reactor_state(rod_insertion, current_enrichment)[0] - 1.0
 
 rod_critical_start = brentq(target_critical, 0.0, 0.99, args=(enrichment_percent,))
 rod_critical_end = brentq(target_critical, 0.0, 0.99, args=(enrichment_percent_end,))
 
-print("\n REACTOR STATE AT k=1 ")
-print(f"Start (Enrichment {enrichment_percent*100:.2f}%): Control rods {rod_critical_start*100:.1f}% inserted")
-print(f"End   (Enrichment {enrichment_percent_end*100:.2f}%): Control rods {rod_critical_end*100:.1f}% inserted")
+# --- EXTRACT AND PRINT FACTORS FOR START AND END ---
+k_start, n_start, eps_start, p_start, f_start, P_start = evaluate_reactor_state(rod_critical_start, enrichment_percent)
+k_end, n_end, eps_end, p_end, f_end, P_end = evaluate_reactor_state(rod_critical_end, enrichment_percent_end)
 
+print("FEMFAKTORFORMELN & REAKTORSTATUS")
+print(f"{'Parameter':<10}  {'BOC (Start)':<12} {'EOC (Slut)':<12}")
+print(f"{'k_eff':<10} {k_start:<12.5f} {k_end:<12.5f}")
+print(f"{'eta (n)':<10} {n_start:<12.5f} {n_end:<12.5f}")
+print(f"{'epsilon':<10} {eps_start:<12.5f} {eps_end:<12.5f}")
+print(f"{'p':<10} {p_start:<12.5f} {p_end:<12.5f}")
+print(f"{'f':<10} {f_start:<12.5f} {f_end:<12.5f}")
+print(f"{'P':<10} {P_start:<12.5f} {P_end:<12.5f}")
+print(f"Styrstavar {rod_critical_start*100:<11.1f}% {rod_critical_end*100:<11.1f}%")
 
-# Ploting void coefficients for the start and end of the cycle to prove that increasing the void would make the reactor undercritical. 
-
-void_fractions = np.linspace(0.0, 0.8, 50)  # Test void from 0% to 80%
+# Plotting void coefficients
+void_fractions = np.linspace(0.0, 0.8, 50)
 k_eff_start_list = []
 k_eff_end_list = []
 
 for v in void_fractions:
-    # Call reactor function with v as void so that it varies. 
-    k_start = evaluate_reactor_state(rod_critical_start, enrichment_percent, current_void=v)
-    k_end = evaluate_reactor_state(rod_critical_end, enrichment_percent_end, current_void=v)
-    
-    k_eff_start_list.append(k_start)
-    k_eff_end_list.append(k_end)
+    k_start_val = evaluate_reactor_state(rod_critical_start, enrichment_percent, current_void=v)[0]
+    k_end_val = evaluate_reactor_state(rod_critical_end, enrichment_percent_end, current_void=v)[0]
+    k_eff_start_list.append(k_start_val)
+    k_eff_end_list.append(k_end_val)
 
-# Plotting the results
 plt.figure(figsize=(10, 6))
 plt.plot(void_fractions * 100, k_eff_start_list, label="Start of Cycle (BOC)", color="blue", linewidth=2)
 plt.plot(void_fractions * 100, k_eff_end_list, label="End of Cycle (EOC)", color="red", linewidth=2, linestyle='--')
-
-# Mark void point (40%), which is the void we have assumed in the assigment. 
 plt.axvline(40, color='gray', linestyle=':', label='Operational Void (40%)')
 plt.axhline(1.0, color='black', linestyle='-', linewidth=1, label='Criticality (k = 1)')
 
