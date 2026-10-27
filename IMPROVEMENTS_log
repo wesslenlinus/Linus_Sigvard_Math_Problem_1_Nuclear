@@ -1,0 +1,26 @@
+| Date       | Commit  | Author  | Branch  | What was changed  | Why         | Effect on results     |
+| ---------- | ------- | ------- | ------- |----------------- | ----------- | --------------------- |
+| Oct 13, 2026 | 0a771be | SH | main | Merge branch 'main' into sigges-branch | Synchronize code between branches | Updated and integrated codebase |
+| Oct 13, 2026 | 6a3cf54 | SH | main | formating the code cleaner | Improve code readability | Easier to understand and maintain |
+| Oct 13, 2026 | d3334a6 | SH | main | Plotting the void gradient over the reactor cycle. | Visualize the void gradient | Provides a graphical plot over the cycle |
+| Oct 13, 2026 | baa1869 | SH | main | Removed some abundant code | Remove obsolete code | Cleaner file with fewer sources of error |
+| Oct 13, 2026 | 4255fc6 | SH | main | Added function that finds the correct rod insertio... | Automate control rod insertion | New control rod function available |
+| Oct 12, 2026 | 53c9d8d | SH | main | enrichment now changes correctly | Fix errors in enrichment variables | Enrichment is now calculated correctly |
+| Oct 12, 2026 | 3b949fa | SH | main | Update | General file update | No specific functional change |
+| Oct 12, 2026 | 5c2fd59 | SH | main | Plotfunktion | Prepare data plotting | New plotting function added |
+| Oct 11, 2026 | 84be191 | SH | main | Commit | Save ongoing work | - |
+| Oct 11, 2026 | 706206f | SH | main | Adderat värden för bränsle vid slutet av cykeln | Handle fuel depletion (EOC) | Can calculate depleted fuel properties |
+| Oct 11, 2026 | 4833c1b | SH | main | Förvirrad av github | Version control troubleshooting | - |
+| Oct 11, 2026 | 9755435 | SH | main | f klart och formaterad som funktioner | Structure the calculation for f | f is now encapsulated as a function |
+| Oct 11, 2026 | 1913a10 | SH | main | f färdig | Finalize f (thermal utilization factor) | Parameter f is ready for the k-equation |
+| Oct 10, 2026 | 413632d | SH | main | Fortsätter jobba på f | Intermediate step in the f calculation | - |
+| Oct 10, 2026 | 61535b8 | SH | main | Macroscopic absorption cross section calculated | Necessary for cross-section calculation | Macroscopic cross-section ready |
+| Oct 10, 2026 | 023b61a | SH | main | Macroscopic | Initiate macroscopic cross-sections | Variables for cross-sections added |
+| Oct 10, 2026 | c8d34fc | SH | main | Synkar med Linus kod | Merge the codebases | Codebases are successfully unified |
+| Oct 8, 2026 | 8f894c0 | SH | main | Påbörjat koden för f | Start of implementation for f | Basic structure for f exists |
+| Oct 7, 2026 | 9fb78da | SH | main | Test för ändring i branch | Verify branch functionality | - |
+| Oct 7, 2026 | e1d22cc | LW | main | Linus branch | Create branch for Linus | New branch registered |
+| Oct 7, 2026 | c5aea53 | SH | main | amend | Adjust previous commit | Cleaner git history |
+| Oct 7, 2026 | 2379030 | LW | main | Merge branch 'main' of https://github.com/... | Resolve merge conflict | main is in functional sync |
+| Oct 7, 2026 | 874f426 | LW | main | hejhej recieved | Test version control | Test string uploaded |
+| Oct 7, 2026 | 7851640 | LW | main | k input | Define the k-factor (k=n*E*p*f*P) | The k-function now exists |
